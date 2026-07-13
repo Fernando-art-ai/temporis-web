@@ -1110,7 +1110,7 @@ function pCompany(t){var c=t.company;
 }
 function pInsights(t){var ins=t.insights,f=ins.feature;
   return '<section class="section"><div class="wrap"><div class="sec-head center reveal"><span class="eyebrow">'+esc(ins.eyebrow)+'</span><h1 class="display">'+esc(ins.title)+'</h1><p>'+esc(ins.sub)+'</p></div>'+
-  '<article class="card reveal" style="border-color:var(--orange);margin-bottom:34px"><span class="res-tag bench">'+esc(f.tag)+'</span><h2 class="display" style="font-size:26px;margin:8px 0 8px">'+esc(f.title)+'</h2><p class="lead" style="margin:0 0 18px">'+esc(f.dek)+'</p>'+
+  '<article class="card reveal" style="border:none;margin-bottom:34px"><span class="res-tag bench">'+esc(f.tag)+'</span><h2 class="display" style="font-size:26px;margin:8px 0 8px">'+esc(f.title)+'</h2><p class="lead" style="margin:0 0 18px">'+esc(f.dek)+'</p>'+
     '<div class="grid-2">'+f.secs.map(function(s){return '<div class="cli-out"><b>'+esc(s[0])+'</b>'+esc(s[1])+'</div>';}).join('')+'</div>'+
     '<p style="margin-top:14px;font-size:11.5px;color:var(--muted);font-style:italic;font-weight:600">'+esc(f.note)+'</p>'+
   '</article>'+
