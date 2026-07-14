@@ -4,8 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Temporis — Operational Intelligence Ecosystem</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>
 :root{
   --orange:#e8531f;--orange-2:#ff6a2b;--rust:#b8492a;
@@ -377,6 +375,10 @@ footer .fnav a:hover{color:#fff}
 .hx-dark .hx-title{color:#fff}.hx-dark .hx-sub{color:#a7adba}.hx-dark .hx-eye{color:var(--orange-2)}
 .hx-reveal{opacity:0;transform:translateY(26px);transition:opacity 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1)}
 .hx-reveal.in{opacity:1;transform:none}
+/* progressive enhancement: if JS never activates, show everything */
+.hx:not(.is-live) .hx-step,.hx:not(.is-live) .hx-reveal,.hx:not(.is-live) .hx-role{opacity:1!important;transform:none!important;filter:none!important}
+.hx:not(.is-live) .hx-tangle svg .edge{stroke-opacity:.5}
+.hx:not(.is-live) .hx-bar{filter:none}
 .hx-signal{width:120px;height:2px;background:var(--orange);margin:0 auto;border-radius:2px;position:relative}
 .hx-signal::after{content:"";position:absolute;right:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 18px 3px rgba(232,83,31,.7)}
 @keyframes hxpulse{0%,100%{opacity:.55;transform:scaleX(.7)}50%{opacity:1;transform:scaleX(1)}}
@@ -423,6 +425,7 @@ footer .fnav a:hover{color:#fff}
 .hx-baw .on2{color:var(--orange)}
 .hx-band{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:34px 54px;margin-top:28px}
 .hx-band img{max-height:44px;width:auto;opacity:.92}
+.hx-cli{display:inline-flex;align-items:center;font-weight:800;font-size:19px;color:var(--ink);opacity:.85}
 .hx-mani{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:800;font-size:clamp(26px,4.4vw,52px);line-height:1.12;letter-spacing:-.01em;max-width:900px;margin:0 auto;color:#fff}
 .hx-mani .em{color:var(--orange)}
 .hx-claim{font-weight:800;font-size:clamp(15px,2vw,20px);color:#cfd3db;margin-top:30px;letter-spacing:.01em}
@@ -1131,7 +1134,7 @@ function pHome(t){var x=HX[lang]||HX.es, lv=t.arch7.items, cl=t.clientes;
   }).join('');
   var roles=x.roles.map(function(r){return '<div class="hx-role" data-role><span class="hx-role-name">'+esc(r[0])+'</span><span class="hx-role-cap">'+esc(r[1])+'</span></div>';}).join('');
   var bars=[[60,120],[150,120],[40,120],[172,120],[92,120]].map(function(b){return '<div class="hx-bar" style="--a:'+b[0]+';--b:'+b[1]+'"></div>';}).join('');
-  var logos=cl.items.map(function(c){var lg={CCU:"logos/ccu.png",CIC:"logos/cic.png",Scalpi:"logos/scalpi.png"}[c.name]||"";return lg?'<img src="'+lg+'" alt="'+esc(c.name)+'">':'';}).join('');
+  var logos=cl.items.map(function(c){var lg={CCU:"logos/ccu.png",CIC:"logos/cic.png",Scalpi:"logos/scalpi.png"}[c.name]||"";return '<span class="hx-cli">'+(lg?'<img src="'+lg+'" alt="'+esc(c.name)+'" onerror="this.style.display=\'none\';this.parentNode.textContent=\''+esc(c.name)+'\'">':esc(c.name))+'</span>';}).join('');
   return '<div class="hx">'+
     '<section class="hx-ch"><div class="hx-inner"><div class="hx-signal hx-pulse"></div><div class="hx-brand hx-reveal in">'+esc(x.c0brand)+'</div></div><div class="hx-cue">'+esc(x.scroll)+'<span>↓</span></div></section>'+
     '<section class="hx-pin" data-hx="steps" style="height:440vh"><div class="hx-stage"><div class="hx-inner">'+
@@ -1348,17 +1351,18 @@ function render(){
 }
 /* ===== Home Experience v2 · scroll engine ===== */
 function hxProg(el){var r=el.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;var total=el.offsetHeight-vh;var sc=Math.min(Math.max(-r.top,0),total>0?total:0);return total>0?sc/total:0;}
-function hxScroll(){var pins=document.querySelectorAll(".hx-pin");if(!pins.length)return;pins.forEach(function(pin){var p=hxProg(pin);var m=pin.querySelector("[data-prog]");if(m)m.style.setProperty("--p",p.toFixed(3));if(pin.getAttribute("data-hx")==="roles"){var items=pin.querySelectorAll("[data-role]");var n=items.length;var idx=Math.min(n-1,Math.max(0,Math.floor(p*n*0.999)));items.forEach(function(it,i){it.classList.toggle("on",i===idx);});}pin.querySelectorAll("[data-at]").forEach(function(it){it.classList.toggle("on",p>=parseFloat(it.getAttribute("data-at")));});pin.querySelectorAll("[data-dim]").forEach(function(it){it.classList.toggle("dim",p>=parseFloat(it.getAttribute("data-dim")));});});}
+function hxScroll(){try{var pins=document.querySelectorAll(".hx-pin");if(!pins.length)return;pins.forEach(function(pin){var p=hxProg(pin);var m=pin.querySelector("[data-prog]");if(m)m.style.setProperty("--p",p.toFixed(3));if(pin.getAttribute("data-hx")==="roles"){var items=pin.querySelectorAll("[data-role]");var n=items.length;var idx=Math.min(n-1,Math.max(0,Math.floor(p*n*0.999)));items.forEach(function(it,i){it.classList.toggle("on",i===idx);});}pin.querySelectorAll("[data-at]").forEach(function(it){it.classList.toggle("on",p>=parseFloat(it.getAttribute("data-at")));});pin.querySelectorAll("[data-dim]").forEach(function(it){it.classList.toggle("dim",p>=parseFloat(it.getAttribute("data-dim")));});});}catch(e){}}
 var hxTick=false;
 function hxOnScroll(){if(hxTick)return;hxTick=true;requestAnimationFrame(function(){hxScroll();hxTick=false;});}
-function hxInit(){var root=document.querySelector(".hx");if(!root)return;
-  var reduce=(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)||(window.innerWidth<640);
+function hxInit(){try{var root=document.querySelector(".hx");if(!root)return;
+  root.classList.add("is-live");
+  var reduce=(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)||(window.innerWidth<640)||!("IntersectionObserver"in window);
   if(reduce){root.classList.add("hx-reduced");root.querySelectorAll("[data-role]").forEach(function(it){it.classList.add("on");});root.querySelectorAll("[data-prog]").forEach(function(m){m.style.setProperty("--p","1");});root.querySelectorAll(".hx-reveal").forEach(function(el){el.classList.add("in");});return;}
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},{threshold:.18});
   root.querySelectorAll(".hx-reveal").forEach(function(el){io.observe(el);});
   if(!window.__hxBound){window.addEventListener("scroll",hxOnScroll,{passive:true});window.addEventListener("resize",hxOnScroll);window.__hxBound=true;}
   hxScroll();
-}
+}catch(e){var r=document.querySelector(".hx");if(r){r.classList.remove("is-live");}}}
 
 /* events */
 document.addEventListener("click",function(e){
