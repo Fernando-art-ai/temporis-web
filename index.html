@@ -426,6 +426,16 @@ footer .fnav a:hover{color:#fff}
 .hx-band{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:34px 54px;margin-top:28px}
 .hx-band img{max-height:44px;width:auto;opacity:.92}
 .hx-cli{display:inline-flex;align-items:center;font-weight:800;font-size:19px;color:var(--ink);opacity:.85}
+/* auto-play keynote mode */
+.hx.player > section{position:fixed;inset:0;height:100vh;min-height:100vh;display:grid;place-items:center;opacity:0;visibility:hidden;transition:opacity .8s ease;z-index:1;overflow-y:auto;padding:96px 24px}
+.hx.player > section.hx-active{opacity:1;visibility:visible;z-index:2}
+.hx.player .hx-pin{height:auto!important}
+.hx.player .hx-stage{position:static;height:auto;min-height:0;padding:0}
+.hx.player .hx-cue{display:none}
+.hx-prog{position:fixed;top:0;left:0;height:3px;width:0;background:var(--orange);z-index:75}
+.hx-ctrl{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:75;display:flex;align-items:center;gap:6px;background:rgba(251,248,243,.92);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:999px;padding:6px 10px;box-shadow:0 6px 22px rgba(0,0,0,.08)}
+.hx-ctrl button{border:none;background:none;cursor:pointer;font-size:16px;color:var(--ink);font-weight:800;padding:6px 12px;line-height:1;border-radius:999px}
+.hx-ctrl button:hover{color:var(--orange);background:rgba(232,83,31,.08)}
 .hx-mani{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:800;font-size:clamp(26px,4.4vw,52px);line-height:1.12;letter-spacing:-.01em;max-width:900px;margin:0 auto;color:#fff}
 .hx-mani .em{color:var(--orange)}
 .hx-claim{font-weight:800;font-size:clamp(15px,2vw,20px);color:#cfd3db;margin-top:30px;letter-spacing:.01em}
@@ -1138,13 +1148,13 @@ function pHome(t){var x=HX[lang]||HX.es, lv=t.arch7.items, cl=t.clientes;
   return '<div class="hx">'+
     '<section class="hx-ch"><div class="hx-inner"><div class="hx-signal hx-pulse"></div><div class="hx-brand hx-reveal in">'+esc(x.c0brand)+'</div></div><div class="hx-cue">'+esc(x.scroll)+'<span>↓</span></div></section>'+
     '<section class="hx-pin" data-hx="steps" style="height:440vh"><div class="hx-stage"><div class="hx-inner">'+
-      '<span class="hx-eye hx-step" data-at="0.02">'+esc(x.c1eye)+' · '+esc(x.c1title)+'</span>'+
+      '<span class="hx-eye hx-step" data-at="0.02">'+esc(x.c1title)+'</span>'+
       '<p class="hx-sub hx-step" data-at="0.05" style="margin-top:6px">'+esc(x.c1lead)+'</p>'+
       '<div class="hx-sysline" data-dim="0.72">'+systems+'</div>'+
       '<div class="hx-q hx-step" data-at="0.8" style="margin-top:34px">'+esc(x.c1q)+'</div>'+
     '</div></div></section>'+
     '<section class="hx-pin" data-hx="steps" style="height:360vh"><div class="hx-stage"><div class="hx-inner">'+
-      '<span class="hx-eye hx-step" data-at="0.02">'+esc(x.c2eye)+' · '+esc(x.c2title)+'</span>'+
+      '<span class="hx-eye hx-step" data-at="0.02">'+esc(x.c2title)+'</span>'+
       '<div class="hx-tangle" data-prog>'+hxTangleSVG()+'</div>'+
       '<div class="hx-q hx-step" data-at="0.72" style="margin-top:26px">'+esc(x.c2a)+'<br>'+esc(x.c2b)+'</div>'+
     '</div></div></section>'+
@@ -1154,29 +1164,28 @@ function pHome(t){var x=HX[lang]||HX.es, lv=t.arch7.items, cl=t.clientes;
       '<p class="hx-sub hx-step" data-at="0.92">'+esc(x.c3sub)+'</p>'+
     '</div></div></section>'+
     '<section class="hx-ch"><div class="hx-inner">'+
-      '<span class="hx-eye hx-reveal">'+esc(x.c4eye)+' · '+esc(x.c4title)+'</span>'+
+      '<span class="hx-eye hx-reveal">'+esc(x.c4title)+'</span>'+
       '<div class="hx-chain">'+chain+'</div>'+
       '<p class="hx-sub hx-reveal" style="transition-delay:.85s">'+esc(x.c4foot)+'</p>'+
     '</div></section>'+
     '<section class="hx-ch"><div class="hx-inner">'+
       '<div class="hx-brain hx-reveal in"></div>'+
-      '<span class="hx-eye hx-reveal">'+esc(x.c5eye)+' · '+esc(x.c5title)+'</span>'+
+      '<span class="hx-eye hx-reveal">'+esc(x.c5title)+'</span>'+
       '<div class="hx-pro hx-reveal" style="transition-delay:.15s">'+esc(x.c5name)+'</div>'+
       '<p class="hx-sub hx-reveal" style="transition-delay:.3s">'+esc(x.c5line)+'</p>'+
     '</div></section>'+
     '<section class="hx-pin" data-hx="roles" style="height:460vh"><div class="hx-stage"><div class="hx-inner">'+
-      '<span class="hx-eye">'+esc(x.c6eye)+'</span>'+
       '<h2 class="hx-title" style="font-size:clamp(22px,3.6vw,42px);margin-bottom:28px">'+esc(x.c6title)+'</h2>'+
       '<div class="hx-roles">'+roles+'</div>'+
     '</div></div></section>'+
     '<section class="hx-pin" data-hx="steps" style="height:340vh"><div class="hx-stage"><div class="hx-inner">'+
-      '<span class="hx-eye">'+esc(x.c7eye)+' · '+esc(x.c7title)+'</span>'+
+      '<span class="hx-eye">'+esc(x.c7title)+'</span>'+
       '<div class="hx-bars" data-prog>'+bars+'</div>'+
       '<div class="hx-baw"><span>'+esc(x.c7before)+'</span><span class="on2">'+esc(x.c7after)+'</span></div>'+
       '<p class="hx-sub hx-step" data-at="0.55">'+esc(x.c7line)+'</p>'+
     '</div></div></section>'+
     '<section class="hx-ch"><div class="hx-inner">'+
-      '<span class="hx-eye hx-reveal">'+esc(x.c8eye)+' · '+esc(x.c8title)+'</span>'+
+      '<span class="hx-eye hx-reveal">'+esc(x.c8title)+'</span>'+
       '<div class="hx-band hx-reveal">'+logos+'</div>'+
     '</div></section>'+
     '<section class="hx-ch hx-dark"><div class="hx-inner">'+
@@ -1271,7 +1280,7 @@ var HX={
   systems:["ERP","MES","SCADA","Historian","CMMS","IoT","Data Lakes","AI"],
   c1q:"¿Por qué seguimos tomando decisiones con información fragmentada?",
   c2eye:"Capítulo 2",c2title:"La paradoja",c2a:"Nunca hubo tantos datos.",c2b:"Nunca fue tan difícil decidir.",
-  c3eye:"Capítulo 3 · El cambio de paradigma",c3sub:"No es un producto. Es una nueva forma de entender la operación.",
+  c3eye:"El cambio de paradigma",c3sub:"No es un producto. Es una nueva forma de entender la operación.",
   c4eye:"Capítulo 4",c4title:"Operational Intelligence en acción",chain:["Alarma","Problema","Recomendación","Responsable","Acción","Resultado"],c4foot:"Comprender la operación en menos de diez segundos.",
   c5eye:"Capítulo 5",c5title:"El cerebro",c5name:"TemporisPRO",c5line:"El sistema que convierte datos en decisiones.",
   c6eye:"Capítulo 6",c6title:"Una misma operación. Cada rol, una mirada.",roles:[["CEO","El impacto en el negocio."],["COO","El desempeño de la operación."],["Supervisor","Las desviaciones del turno."],["Operador","La acción de ahora."]],
@@ -1283,7 +1292,7 @@ var HX={
   systems:["ERP","MES","SCADA","Historian","CMMS","IoT","Data Lakes","AI"],
   c1q:"Why do we still make decisions on fragmented information?",
   c2eye:"Chapter 2",c2title:"The paradox",c2a:"There was never so much data.",c2b:"It was never so hard to decide.",
-  c3eye:"Chapter 3 · The paradigm shift",c3sub:"Not a product. A new way to understand the operation.",
+  c3eye:"The paradigm shift",c3sub:"Not a product. A new way to understand the operation.",
   c4eye:"Chapter 4",c4title:"Operational Intelligence in action",chain:["Alarm","Problem","Recommendation","Owner","Action","Result"],c4foot:"Understand the operation in under ten seconds.",
   c5eye:"Chapter 5",c5title:"The brain",c5name:"TemporisPRO",c5line:"The system that turns data into decisions.",
   c6eye:"Chapter 6",c6title:"One operation. Every role, its own view.",roles:[["CEO","The business impact."],["COO","The operation's performance."],["Supervisor","The shift's deviations."],["Operator","The action right now."]],
@@ -1295,7 +1304,7 @@ var HX={
   systems:["ERP","MES","SCADA","Historian","CMMS","IoT","Data Lakes","AI"],
   c1q:"Por que ainda tomamos decisões com informação fragmentada?",
   c2eye:"Capítulo 2",c2title:"O paradoxo",c2a:"Nunca houve tantos dados.",c2b:"Nunca foi tão difícil decidir.",
-  c3eye:"Capítulo 3 · A mudança de paradigma",c3sub:"Não é um produto. É uma nova forma de entender a operação.",
+  c3eye:"A mudança de paradigma",c3sub:"Não é um produto. É uma nova forma de entender a operação.",
   c4eye:"Capítulo 4",c4title:"Operational Intelligence em ação",chain:["Alarme","Problema","Recomendação","Responsável","Ação","Resultado"],c4foot:"Entender a operação em menos de dez segundos.",
   c5eye:"Capítulo 5",c5title:"O cérebro",c5name:"TemporisPRO",c5line:"O sistema que converte dados em decisões.",
   c6eye:"Capítulo 6",c6title:"Uma mesma operação. Cada função, um olhar.",roles:[["CEO","O impacto no negócio."],["COO","O desempenho da operação."],["Supervisor","Os desvios do turno."],["Operador","A ação de agora."]],
@@ -1347,7 +1356,51 @@ function render(){
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},{threshold:.1});
   document.querySelectorAll(".reveal").forEach(function(el){io.observe(el);});
   window.scrollTo({top:0,behavior:"instant"in window?"instant":"auto"});
-  if(page==="home") hxInit();
+  if(window.__hxP){try{window.__hxP.stop();}catch(e){}window.__hxP=null;}
+  if(page==="home") hxPlayer();
+}
+/* ===== Home Experience v2 · auto-play keynote player ===== */
+function hxPlayer(){var root=document.querySelector(".hx");if(!root)return;
+  try{
+    root.classList.add("is-live","player");
+    var slides=[].slice.call(root.children).filter(function(n){return n.tagName==="SECTION";});
+    var durs=[3800,9500,6500,9500,7500,5200,9500,6500,4800,9000];
+    var idx=-1,playing=true,advT=null,tmrs=[],pRAF=null;
+    var oc=document.getElementById("hxctrl");if(oc)oc.remove();
+    var op=document.getElementById("hxprog");if(op)op.remove();
+    var prog=document.createElement("div");prog.id="hxprog";prog.className="hx-prog";document.body.appendChild(prog);
+    var ctrl=document.createElement("div");ctrl.id="hxctrl";ctrl.className="hx-ctrl";
+    ctrl.innerHTML='<button data-a="prev" aria-label="anterior">‹</button><button data-a="toggle" aria-label="pausar/reanudar">❚❚</button><button data-a="next" aria-label="siguiente">›</button>';
+    document.body.appendChild(ctrl);
+    function clearAll(){if(advT)clearTimeout(advT);advT=null;tmrs.forEach(clearTimeout);tmrs=[];if(pRAF)cancelAnimationFrame(pRAF);pRAF=null;}
+    function reset(s){s.querySelectorAll(".hx-reveal").forEach(function(e){e.classList.remove("in");});s.querySelectorAll("[data-at]").forEach(function(e){e.classList.remove("on");});s.querySelectorAll("[data-dim]").forEach(function(e){e.classList.remove("dim");});s.querySelectorAll("[data-role]").forEach(function(e){e.classList.remove("on");});var m=s.querySelector("[data-prog]");if(m)m.style.setProperty("--p","0");}
+    function enter(s,dur){
+      s.querySelectorAll(".hx-reveal").forEach(function(e){e.classList.add("in");});
+      [].slice.call(s.querySelectorAll("[data-at]")).forEach(function(e){var at=parseFloat(e.getAttribute("data-at"));tmrs.push(setTimeout(function(){e.classList.add("on");},Math.max(150,at*dur*0.8)));});
+      s.querySelectorAll("[data-dim]").forEach(function(e){var at=parseFloat(e.getAttribute("data-dim"));tmrs.push(setTimeout(function(){e.classList.add("dim");},at*dur));});
+      var m=s.querySelector("[data-prog]");
+      if(m){var t0=performance.now();var step=function(t){var k=Math.min(1,(t-t0)/(dur*0.85));m.style.setProperty("--p",k.toFixed(3));if(k<1)pRAF=requestAnimationFrame(step);};pRAF=requestAnimationFrame(step);}
+      var roles=[].slice.call(s.querySelectorAll("[data-role]"));
+      if(roles.length){var each=dur/(roles.length+0.4);roles.forEach(function(r,i){tmrs.push(setTimeout(function(){roles.forEach(function(z,j){z.classList.toggle("on",j===i);});},i*each));});}
+    }
+    function setProg(dur){prog.style.transition="none";prog.style.width="0%";requestAnimationFrame(function(){prog.style.transition="width "+dur+"ms linear";prog.style.width="100%";});}
+    function toggleBtn(){var b=ctrl.querySelector('[data-a="toggle"]');if(b)b.innerHTML=playing?"❚❚":"►";}
+    function go(i){if(i<0)i=0;if(i>slides.length-1)i=slides.length-1;clearAll();
+      slides.forEach(function(s,j){if(j!==i){s.classList.remove("hx-active");reset(s);}});
+      idx=i;var s=slides[i];reset(s);s.classList.add("hx-active");var dur=durs[i]||6500;
+      requestAnimationFrame(function(){requestAnimationFrame(function(){enter(s,dur);});});
+      if(playing){setProg(dur);advT=setTimeout(function(){if(idx<slides.length-1)go(idx+1);else{playing=false;toggleBtn();prog.style.width="100%";}},dur);}
+      else{prog.style.transition="none";}
+    }
+    function pause(){playing=false;clearAll();prog.style.transition="none";toggleBtn();}
+    function play(){playing=true;toggleBtn();if(idx>=slides.length-1)go(0);else go(idx);}
+    ctrl.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var a=b.getAttribute("data-a");if(a==="next"){pause();go(idx+1);}else if(a==="prev"){pause();go(idx-1);}else{playing?pause():play();}});
+    function key(e){if(e.key==="ArrowRight"){pause();go(idx+1);}else if(e.key==="ArrowLeft"){pause();go(idx-1);}else if(e.key===" "){e.preventDefault();playing?pause():play();}}
+    document.addEventListener("keydown",key);
+    document.body.style.overflow="hidden";
+    window.__hxP={stop:function(){clearAll();document.removeEventListener("keydown",key);var c=document.getElementById("hxctrl");if(c)c.remove();var p=document.getElementById("hxprog");if(p)p.remove();document.body.style.overflow="";}};
+    go(0);
+  }catch(e){root.classList.remove("is-live","player");document.body.style.overflow="";}
 }
 /* ===== Home Experience v2 · scroll engine ===== */
 function hxProg(el){var r=el.getBoundingClientRect();var vh=window.innerHeight||document.documentElement.clientHeight;var total=el.offsetHeight-vh;var sc=Math.min(Math.max(-r.top,0),total>0?total:0);return total>0?sc/total:0;}
