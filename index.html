@@ -417,6 +417,17 @@ footer .fnav a:hover{color:#fff}
 .hx-tangle{margin:24px auto 0}
 .hx-tangle svg circle{fill:var(--orange)}
 .hx-tangle svg .edge{stroke:var(--orange);stroke-width:1.2;stroke-opacity:var(--p,0);transition:stroke-opacity .1s linear}
+.hx-line-stack{display:flex;flex-direction:column;gap:20px;align-items:center}
+.hx-stmt{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:800;font-size:clamp(22px,3.4vw,42px);line-height:1.16;letter-spacing:-.01em;color:var(--ink);max-width:940px}
+.hx-accent{color:var(--orange)}
+.hx-notgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:16px 30px;margin:26px auto 0;max-width:780px}
+.hx-not{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:800;font-size:clamp(20px,3vw,36px);color:var(--muted);text-decoration:line-through;text-decoration-color:var(--orange);text-decoration-thickness:3px}
+.hx-def{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:700;font-size:clamp(21px,2.9vw,38px);line-height:1.34;max-width:1000px;margin:20px auto 0;color:#fff}
+.hx-def .em{color:var(--orange)}
+.hx-stack-lite .hx-lvl{color:var(--ink-soft)}
+.hx-stack-lite .hx-lvl.hx-heart{color:var(--ink)}
+.hx-stack-lite .hx-lvl.hx-heart .hx-mark{color:var(--orange);text-shadow:0 0 26px rgba(232,83,31,.35)}
+.hx-stack-lite .hx-arrowd{color:#d8cfc0}
 .hx-stack{display:flex;flex-direction:column;gap:9px;align-items:center}
 .hx-lvl{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:800;font-size:clamp(15px,2.3vw,25px);color:#69707d;letter-spacing:.01em}
 .hx-lvl.hx-heart{color:#fff;font-size:clamp(22px,3.3vw,40px)}
@@ -1159,11 +1170,15 @@ function a7block(t){var a=t.arch7,cols=["var(--navy)","var(--navy)","var(--navy)
   return '<div class="sec-head center reveal"><span class="eyebrow">'+esc(a.eyebrow)+'</span><h2 class="display">'+esc(a.title)+'</h2><p>'+esc(a.sub)+'</p></div>'+
     '<div class="a7">'+a.items.map(function(it,i){return '<div class="a7-row reveal" style="--c:'+cols[i]+'"><div class="n">'+esc(it[0])+'</div><div class="d">'+esc(it[1])+'</div></div>'+(i<a.items.length-1?'<div class="a7-arrow">▼</div>':'');}).join('')+'</div>';
 }
-function pHome(t){var x=HX[lang]||HX.es, lv=t.arch7.items, cl=t.clientes;
-  var systems=x.systems.map(function(s,i){return '<span class="hx-sys hx-step" data-at="'+(0.08+i*0.06).toFixed(2)+'">'+esc(s)+'</span>';}).join('');
-  var stack=lv.map(function(l,i){var heart=(l[0]==="Operational Intelligence");
-    return '<div class="hx-lvl hx-step'+(heart?' hx-heart':'')+'" data-at="'+(0.06+i*0.11).toFixed(2)+'">'+(heart?'<span class="hx-mark">'+esc(l[0])+'</span>':esc(l[0]))+'</div>'+(i<lv.length-1?'<div class="hx-arrowd hx-step" data-at="'+(0.10+i*0.11).toFixed(2)+'">↓</div>':'');
+function pHome(t){var x=HX[lang]||HX.es, v=HXV3[lang]||HXV3.es, cl=t.clientes;
+  var systems=v.systems.map(function(s,i){return '<span class="hx-sys hx-step" data-at="'+(0.12+i*0.09).toFixed(2)+'">'+esc(s)+'</span>';}).join('');
+  var stack=ARCHV3.map(function(name,i){var heart=(name==="Operational Intelligence");
+    return '<div class="hx-lvl hx-step'+(heart?' hx-heart':'')+'" data-at="'+(0.06+i*0.11).toFixed(2)+'">'+(heart?'<span class="hx-mark">'+esc(name)+'</span>':esc(name))+'</div>'+(i<ARCHV3.length-1?'<div class="hx-arrowd hx-step" data-at="'+(0.10+i*0.11).toFixed(2)+'">↓</div>':'');
   }).join('');
+  var notItems=v.notList.map(function(n,i){return '<span class="hx-not hx-step" data-at="'+(0.12+i*0.11).toFixed(2)+'">'+esc(n)+'</span>';}).join('');
+  var shift=v.shift.map(function(s,i){return '<div class="hx-stmt hx-step" data-at="'+[0.08,0.42,0.78][i]+'">'+esc(s)+'</div>';}).join('');
+  var para=v.para.map(function(s,i){return '<div class="hx-stmt hx-step'+(i===2?' hx-accent':'')+'" data-at="'+[0.08,0.42,0.78][i]+'">'+esc(s)+'</div>';}).join('');
+  var defRest=v.definition.replace(/^Operational Intelligence/,'');
   var chain=x.chain.map(function(n,i){var end=(i===x.chain.length-1);
     return (i?'<span class="hx-arrow hx-reveal" style="transition-delay:'+(i*0.12).toFixed(2)+'s">→</span>':'')+'<span class="hx-node hx-reveal'+(end?' hx-end':'')+'" style="transition-delay:'+(i*0.12).toFixed(2)+'s">'+esc(n)+'</span>';
   }).join('');
@@ -1171,53 +1186,23 @@ function pHome(t){var x=HX[lang]||HX.es, lv=t.arch7.items, cl=t.clientes;
   var bars=[[60,120],[150,120],[40,120],[172,120],[92,120]].map(function(b){return '<div class="hx-bar" style="--a:'+b[0]+';--b:'+b[1]+'"></div>';}).join('');
   var logos=cl.items.map(function(c){var lg={CCU:"logos/ccu.png",CIC:"logos/cic.png",Scalpi:"logos/scalpi.png"}[c.name]||"";return '<span class="hx-cli">'+(lg?'<img src="'+lg+'" alt="'+esc(c.name)+'" onerror="this.style.display=\'none\';this.parentNode.textContent=\''+esc(c.name)+'\'">':esc(c.name))+'</span>';}).join('');
   return '<div class="hx">'+
-    '<section class="hx-ch"><div class="hx-inner"><div class="hx-signal hx-pulse"></div><div class="hx-brand hx-reveal in">'+esc(x.c0brand)+'</div></div><div class="hx-cue">'+esc(x.scroll)+'<span>↓</span></div></section>'+
-    '<section class="hx-pin" data-hx="steps" style="height:440vh"><div class="hx-stage"><div class="hx-inner">'+
-      '<span class="hx-eye hx-step" data-at="0.02">'+esc(x.c1title)+'</span>'+
-      '<p class="hx-sub hx-step" data-at="0.05" style="margin-top:6px">'+esc(x.c1lead)+'</p>'+
-      '<div class="hx-sysline" data-dim="0.72">'+systems+'</div>'+
-      '<div class="hx-q hx-step" data-at="0.8" style="margin-top:34px">'+esc(x.c1q)+'</div>'+
-    '</div></div></section>'+
-    '<section class="hx-pin" data-hx="steps" style="height:360vh"><div class="hx-stage"><div class="hx-inner">'+
-      '<span class="hx-eye hx-step" data-at="0.02">'+esc(x.c2title)+'</span>'+
-      '<div class="hx-tangle" data-prog>'+hxTangleSVG()+'</div>'+
-      '<div class="hx-q hx-step" data-at="0.72" style="margin-top:26px">'+esc(x.c2a)+'<br>'+esc(x.c2b)+'</div>'+
-    '</div></div></section>'+
-    '<section class="hx-pin hx-dark" data-hx="steps" style="height:560vh"><div class="hx-stage"><div class="hx-inner">'+
-      '<span class="hx-eye hx-step" data-at="0.02">'+esc(x.c3eye)+'</span>'+
-      '<div class="hx-stack" style="margin:20px 0">'+stack+'</div>'+
-      '<p class="hx-sub hx-step" data-at="0.92">'+esc(x.c3sub)+'</p>'+
-    '</div></div></section>'+
-    '<section class="hx-ch"><div class="hx-inner">'+
-      '<span class="hx-eye hx-reveal">'+esc(x.c4title)+'</span>'+
-      '<div class="hx-chain">'+chain+'</div>'+
-      '<p class="hx-sub hx-reveal" style="transition-delay:.85s">'+esc(x.c4foot)+'</p>'+
-    '</div></section>'+
-    '<section class="hx-ch"><div class="hx-inner">'+
-      '<div class="hx-brain2 hx-reveal in">'+hxBrainSVG()+'</div>'+
-      '<span class="hx-eye hx-reveal">'+esc(x.c5title)+'</span>'+
-      '<div class="hx-pro hx-reveal" style="transition-delay:.15s">'+esc(x.c5name)+'</div>'+
-      '<p class="hx-sub hx-reveal" style="transition-delay:.3s">'+esc(x.c5line)+'</p>'+
-    '</div></section>'+
-    '<section class="hx-pin" data-hx="roles" style="height:460vh"><div class="hx-stage"><div class="hx-inner">'+
-      '<h2 class="hx-title" style="font-size:clamp(22px,3.6vw,42px);margin-bottom:28px">'+esc(x.c6title)+'</h2>'+
-      '<div class="hx-roles">'+roles+'</div>'+
-    '</div></div></section>'+
-    '<section class="hx-pin" data-hx="steps" style="height:340vh"><div class="hx-stage"><div class="hx-inner">'+
-      '<span class="hx-eye">'+esc(x.c7title)+'</span>'+
-      '<div class="hx-bars" data-prog>'+bars+'</div>'+
-      '<div class="hx-baw"><span>'+esc(x.c7before)+'</span><span class="on2">'+esc(x.c7after)+'</span></div>'+
-      '<p class="hx-sub hx-step" data-at="0.55">'+esc(x.c7line)+'</p>'+
-    '</div></div></section>'+
-    '<section class="hx-ch"><div class="hx-inner">'+
-      '<span class="hx-eye hx-reveal">'+esc(x.c8title)+'</span>'+
-      '<div class="hx-band hx-reveal">'+logos+'</div>'+
-    '</div></section>'+
-    '<section class="hx-ch hx-dark"><div class="hx-inner">'+
-      '<div class="hx-mani hx-reveal">'+esc(x.c9manifesto)+' <span class="em">'+esc(x.c9manifesto2)+'</span></div>'+
-      '<div class="hx-claim hx-reveal" style="transition-delay:.3s">'+esc(x.c9claim)+'</div>'+
-      '<a class="hx-cta hx-reveal" data-nav="contacto" style="transition-delay:.5s">'+esc(x.c9cta)+'</a>'+
-    '</div></section>'+
+    '<section class="hx-ch" data-dur="3800"><div class="hx-inner"><div class="hx-signal hx-pulse"></div><div class="hx-brand hx-reveal in">'+esc(x.c0brand)+'</div></div><div class="hx-cue">'+esc(x.scroll)+'<span>↓</span></div></section>'+
+    '<section class="hx-ch" data-dur="4200"><div class="hx-inner"><h2 class="hx-title hx-reveal">'+esc(v.q1)+'</h2></div></section>'+
+    '<section class="hx-ch" data-dur="9200"><div class="hx-inner"><p class="hx-sub hx-reveal" style="margin-bottom:32px">'+esc(v.lead)+'</p><div class="hx-sysline">'+systems+'</div></div></section>'+
+    '<section class="hx-ch" data-dur="5200"><div class="hx-inner"><div class="hx-q hx-reveal">'+esc(v.adv)+'</div></div></section>'+
+    '<section class="hx-ch" data-dur="8000"><div class="hx-inner"><div class="hx-line-stack">'+shift+'</div></div></section>'+
+    '<section class="hx-ch" data-dur="8600"><div class="hx-inner"><div class="hx-line-stack">'+para+'</div></div></section>'+
+    '<section class="hx-ch" data-dur="5200"><div class="hx-inner"><div class="hx-stmt hx-reveal" style="color:var(--muted);max-width:820px">'+esc(v.origin)+'</div></div></section>'+
+    '<section class="hx-ch" data-dur="4200"><div class="hx-inner"><h2 class="hx-title hx-reveal">'+esc(v.q2)+'</h2></div></section>'+
+    '<section class="hx-ch" data-dur="7400"><div class="hx-inner"><span class="hx-eye hx-reveal">'+esc(v.notLabel)+'</span><div class="hx-notgrid">'+notItems+'</div></div></section>'+
+    '<section class="hx-ch hx-dark" data-dur="11000"><div class="hx-inner"><span class="hx-eye hx-reveal">'+esc(v.defEye)+'</span><div class="hx-def hx-reveal" style="transition-delay:.25s"><span class="em">Operational Intelligence</span>'+esc(defRest)+'</div></div></section>'+
+    '<section class="hx-ch" data-dur="9200"><div class="hx-inner"><span class="hx-eye hx-reveal">'+esc(v.archEye)+'</span><div class="hx-stack hx-stack-lite" style="margin-top:22px">'+stack+'</div></div></section>'+
+    '<section class="hx-ch" data-dur="7500"><div class="hx-inner"><span class="hx-eye hx-reveal">'+esc(x.c4title)+'</span><div class="hx-chain">'+chain+'</div><p class="hx-sub hx-reveal" style="transition-delay:.85s">'+esc(x.c4foot)+'</p></div></section>'+
+    '<section class="hx-ch" data-dur="5200"><div class="hx-inner"><div class="hx-brain2 hx-reveal in">'+hxBrainSVG()+'</div><span class="hx-eye hx-reveal">'+esc(x.c5title)+'</span><div class="hx-pro hx-reveal" style="transition-delay:.15s">'+esc(x.c5name)+'</div><p class="hx-sub hx-reveal" style="transition-delay:.3s">'+esc(x.c5line)+'</p></div></section>'+
+    '<section class="hx-ch" data-dur="9500"><div class="hx-inner"><h2 class="hx-title" style="font-size:clamp(22px,3.6vw,42px);margin-bottom:28px">'+esc(x.c6title)+'</h2><div class="hx-roles">'+roles+'</div></div></section>'+
+    '<section class="hx-ch" data-dur="6500"><div class="hx-inner"><span class="hx-eye hx-reveal">'+esc(x.c7title)+'</span><div class="hx-bars" data-prog>'+bars+'</div><div class="hx-baw"><span>'+esc(x.c7before)+'</span><span class="on2">'+esc(x.c7after)+'</span></div><p class="hx-sub hx-step" data-at="0.55">'+esc(x.c7line)+'</p></div></section>'+
+    '<section class="hx-ch" data-dur="4800"><div class="hx-inner"><span class="hx-eye hx-reveal">'+esc(x.c8title)+'</span><div class="hx-band hx-reveal">'+logos+'</div></div></section>'+
+    '<section class="hx-ch hx-dark" data-dur="9500"><div class="hx-inner"><div class="hx-mani hx-reveal">'+esc(x.c9manifesto)+' <span class="em">'+esc(x.c9manifesto2)+'</span></div><div class="hx-claim hx-reveal" style="transition-delay:.3s">'+esc(x.c9claim)+'</div><a class="hx-cta hx-reveal" data-nav="contacto" style="transition-delay:.5s">'+esc(x.c9cta)+'</a></div></section>'+
   '</div>';
 }
 function pPlatform(t){var pf=t.platform,p=t.pro;
@@ -1306,6 +1291,12 @@ var TEAMBIO={
  DQ:["CTO con trayectoria en desarrollos tecnológicos, I+D y arquitectura de soluciones para Chile y LATAM.","Gerente/Subgerente de Tecnología en Mas Cerca (7+ años): estrategia y mejora continua.","Project Manager en Interactive Intelligence.","+7 años en Sixbell: proyectos, integración, soporte y desarrollo de software."]
 };
 var LINKEDIN_SVG='<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><rect width="24" height="24" rx="4" fill="#0A66C2"></rect><path fill="#fff" d="M4.98 3.5A2.5 2.5 0 1 0 5 8.5a2.5 2.5 0 0 0-.02-5zM3 9.5h4v11H3v-11zm6 0h3.8v1.5h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1v5.45h-4v-4.83c0-1.15-.02-2.63-1.6-2.63-1.6 0-1.85 1.25-1.85 2.55v4.9H9v-11z"></path></svg>';
+var ARCHV3=["Industrial Data","Business Context","Knowledge","Operational Intelligence","Connected Management","Execution","Business Results"];
+var HXV3={
+ es:{q1:"¿Por qué cambió la industria?",lead:"Durante cuarenta años, la industria construyó sistemas extraordinarios.",systems:["ERP","MES","SCADA","Historian","CMMS","IoT"],adv:"Cada uno resolvió un problema real. Hoy registramos casi todo lo que ocurre.",shift:["El desafío ya no es registrar información.","Es comprenderla.","Y convertirla en mejores decisiones."],para:["Nunca hubo tantos datos.","Nunca fue tan difícil decidir.","Operational Intelligence nace para resolver esa paradoja."],origin:"No es una moda tecnológica. Es la evolución natural de la industria.",q2:"¿Qué es Operational Intelligence?",notLabel:"Operational Intelligence no es",notList:["ERP","BI","MES","IA","Dashboards","Analytics"],defEye:"Una nueva categoría",definition:"Operational Intelligence es la disciplina que transforma información operacional dispersa en decisiones ejecutables mediante contexto, conocimiento e inteligencia.",archEye:"De los datos a los resultados"},
+ en:{q1:"Why did the industry change?",lead:"For forty years, the industry built extraordinary systems.",systems:["ERP","MES","SCADA","Historian","CMMS","IoT"],adv:"Each one solved a real problem. Today we record almost everything that happens.",shift:["The challenge is no longer to record information.","It is to understand it.","And turn it into better decisions."],para:["There was never so much data.","It was never so hard to decide.","Operational Intelligence is born to resolve that paradox."],origin:"Not a technological fad. The natural evolution of the industry.",q2:"What is Operational Intelligence?",notLabel:"Operational Intelligence is not",notList:["ERP","BI","MES","AI","Dashboards","Analytics"],defEye:"A new category",definition:"Operational Intelligence is the discipline that turns scattered operational information into executable decisions through context, knowledge and intelligence.",archEye:"From data to results"},
+ pt:{q1:"Por que a indústria mudou?",lead:"Durante quarenta anos, a indústria construiu sistemas extraordinários.",systems:["ERP","MES","SCADA","Historian","CMMS","IoT"],adv:"Cada um resolveu um problema real. Hoje registramos quase tudo o que acontece.",shift:["O desafio já não é registrar informação.","É compreendê-la.","E convertê-la em melhores decisões."],para:["Nunca houve tantos dados.","Nunca foi tão difícil decidir.","Operational Intelligence nasce para resolver esse paradoxo."],origin:"Não é um modismo tecnológico. É a evolução natural da indústria.",q2:"O que é Operational Intelligence?",notLabel:"Operational Intelligence não é",notList:["ERP","BI","MES","IA","Dashboards","Analytics"],defEye:"Uma nova categoria",definition:"Operational Intelligence é a disciplina que transforma informação operacional dispersa em decisões executáveis mediante contexto, conhecimento e inteligência.",archEye:"Dos dados aos resultados"}
+};
 var HX={
  es:{c0brand:"Temporis",scroll:"scroll",
   c1eye:"Capítulo 1",c1title:"La industria cambió",c1lead:"Durante cuarenta años, la industria aprendió a registrar lo que ocurre.",
@@ -1313,36 +1304,36 @@ var HX={
   c1q:"¿Por qué seguimos tomando decisiones con información fragmentada?",
   c2eye:"Capítulo 2",c2title:"La paradoja",c2a:"Nunca hubo tantos datos.",c2b:"Nunca fue tan difícil decidir.",
   c3eye:"El cambio de paradigma",c3sub:"No es un producto. Es una nueva forma de entender la operación.",
-  c4eye:"Capítulo 4",c4title:"Operational Intelligence en acción",chain:["Alarma","Problema","Recomendación","Responsable","Acción","Resultado"],c4foot:"Comprender la operación en menos de diez segundos.",
+  c4eye:"Capítulo 4",c4title:"Operational Intelligence en acción",chain:["Alarma","Contexto","Recomendación","Decisión","Acción","Resultado"],c4foot:"Comprender la operación en menos de diez segundos.",
   c5eye:"Capítulo 5",c5title:"El cerebro",c5name:"TemporisPRO",c5line:"El sistema que convierte datos en decisiones.",
   c6eye:"Capítulo 6",c6title:"Una misma operación. Cada rol, una mirada.",roles:[["CEO","El impacto en el negocio."],["COO","El desempeño de la operación."],["Supervisor","Las desviaciones del turno."],["Operador","La acción de ahora."]],
   c7eye:"Capítulo 7",c7title:"Los resultados",c7before:"Antes",c7after:"Después",c7line:"De la variabilidad al control.",
   c8eye:"Capítulo 8",c8title:"Confianza",
-  c9manifesto:"La próxima ventaja competitiva de la industria no será tener más datos.",c9manifesto2:"Será tomar mejores decisiones.",c9claim:"Operational Intelligence for Industrial Operations.",c9cta:"Request Executive Demo"},
+  c9manifesto:"La próxima ventaja competitiva de la industria no será disponer de más información.",c9manifesto2:"Será comprender mejor la operación. Y tomar mejores decisiones.",c9claim:"Operational Intelligence for Industrial Operations.",c9cta:"Request Executive Demo"},
  en:{c0brand:"Temporis",scroll:"scroll",
   c1eye:"Chapter 1",c1title:"The industry changed",c1lead:"For forty years, industry learned to record what happens.",
   systems:["ERP","MES","SCADA","Historian","CMMS","IoT","Data Lakes","AI"],
   c1q:"Why do we still make decisions on fragmented information?",
   c2eye:"Chapter 2",c2title:"The paradox",c2a:"There was never so much data.",c2b:"It was never so hard to decide.",
   c3eye:"The paradigm shift",c3sub:"Not a product. A new way to understand the operation.",
-  c4eye:"Chapter 4",c4title:"Operational Intelligence in action",chain:["Alarm","Problem","Recommendation","Owner","Action","Result"],c4foot:"Understand the operation in under ten seconds.",
+  c4eye:"Chapter 4",c4title:"Operational Intelligence in action",chain:["Alarm","Context","Recommendation","Decision","Action","Result"],c4foot:"Understand the operation in under ten seconds.",
   c5eye:"Chapter 5",c5title:"The brain",c5name:"TemporisPRO",c5line:"The system that turns data into decisions.",
   c6eye:"Chapter 6",c6title:"One operation. Every role, its own view.",roles:[["CEO","The business impact."],["COO","The operation's performance."],["Supervisor","The shift's deviations."],["Operator","The action right now."]],
   c7eye:"Chapter 7",c7title:"The results",c7before:"Before",c7after:"After",c7line:"From variability to control.",
   c8eye:"Chapter 8",c8title:"Trust",
-  c9manifesto:"Industry's next competitive advantage won't be having more data.",c9manifesto2:"It will be making better decisions.",c9claim:"Operational Intelligence for Industrial Operations.",c9cta:"Request Executive Demo"},
+  c9manifesto:"Industry's next competitive advantage won't be having more information.",c9manifesto2:"It will be understanding the operation better. And making better decisions.",c9claim:"Operational Intelligence for Industrial Operations.",c9cta:"Request Executive Demo"},
  pt:{c0brand:"Temporis",scroll:"scroll",
   c1eye:"Capítulo 1",c1title:"A indústria mudou",c1lead:"Durante quarenta anos, a indústria aprendeu a registrar o que acontece.",
   systems:["ERP","MES","SCADA","Historian","CMMS","IoT","Data Lakes","AI"],
   c1q:"Por que ainda tomamos decisões com informação fragmentada?",
   c2eye:"Capítulo 2",c2title:"O paradoxo",c2a:"Nunca houve tantos dados.",c2b:"Nunca foi tão difícil decidir.",
   c3eye:"A mudança de paradigma",c3sub:"Não é um produto. É uma nova forma de entender a operação.",
-  c4eye:"Capítulo 4",c4title:"Operational Intelligence em ação",chain:["Alarme","Problema","Recomendação","Responsável","Ação","Resultado"],c4foot:"Entender a operação em menos de dez segundos.",
+  c4eye:"Capítulo 4",c4title:"Operational Intelligence em ação",chain:["Alarme","Contexto","Recomendação","Decisão","Ação","Resultado"],c4foot:"Entender a operação em menos de dez segundos.",
   c5eye:"Capítulo 5",c5title:"O cérebro",c5name:"TemporisPRO",c5line:"O sistema que converte dados em decisões.",
   c6eye:"Capítulo 6",c6title:"Uma mesma operação. Cada função, um olhar.",roles:[["CEO","O impacto no negócio."],["COO","O desempenho da operação."],["Supervisor","Os desvios do turno."],["Operador","A ação de agora."]],
   c7eye:"Capítulo 7",c7title:"Os resultados",c7before:"Antes",c7after:"Depois",c7line:"Da variabilidade ao controle.",
   c8eye:"Capítulo 8",c8title:"Confiança",
-  c9manifesto:"A próxima vantagem competitiva da indústria não será ter mais dados.",c9manifesto2:"Será tomar melhores decisões.",c9claim:"Operational Intelligence for Industrial Operations.",c9cta:"Request Executive Demo"}
+  c9manifesto:"A próxima vantagem competitiva da indústria não será ter mais informação.",c9manifesto2:"Será compreender melhor a operação. E tomar melhores decisões.",c9claim:"Operational Intelligence for Industrial Operations.",c9cta:"Request Executive Demo"}
 };
 function hxBrainSVG(){
   var pts=[[50,16],[34,22],[66,22],[23,38],[77,38],[20,56],[80,56],[30,70],[70,70],[50,80],[50,46]];
@@ -1434,7 +1425,6 @@ function hxPlayer(){var root=document.querySelector(".hx");if(!root)return;
   try{
     root.classList.add("is-live","player");
     var slides=[].slice.call(root.children).filter(function(n){return n.tagName==="SECTION";});
-    var durs=[3800,9500,6500,9500,7500,5200,9500,6500,4800,9000];
     var idx=-1,playing=true,advT=null,tmrs=[],pRAF=null;
     var oc=document.getElementById("hxctrl");if(oc)oc.remove();
     var op=document.getElementById("hxprog");if(op)op.remove();
@@ -1458,7 +1448,7 @@ function hxPlayer(){var root=document.querySelector(".hx");if(!root)return;
     function toggleBtn(){var b=ctrl.querySelector('[data-a="toggle"]');if(b)b.innerHTML=playing?"❚❚":"►";}
     function go(i){if(i<0)i=0;if(i>slides.length-1)i=slides.length-1;clearAll();
       slides.forEach(function(s,j){if(j!==i){s.classList.remove("hx-active");reset(s);}});
-      idx=i;var s=slides[i];reset(s);s.classList.add("hx-active");var dur=durs[i]||6500;
+      idx=i;var s=slides[i];reset(s);s.classList.add("hx-active");var dur=parseInt(s.getAttribute("data-dur"),10)||6500;
       requestAnimationFrame(function(){requestAnimationFrame(function(){enter(s,dur);});});
       if(playing){setProg(dur);advT=setTimeout(function(){if(idx<slides.length-1)go(idx+1);else{playing=false;toggleBtn();prog.style.width="100%";}},dur);}
       else{prog.style.transition="none";}
