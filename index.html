@@ -480,6 +480,46 @@ body.hx-playing footer{display:none}
 .hx-reduced .hx-reveal,.hx-reduced .hx-step,.hx-reduced .hx-role{opacity:1!important;transform:none!important;filter:none!important}
 @media (prefers-reduced-motion:reduce){.hx-pulse,.hx-brain,.hx-cue span{animation:none}}
 @media (max-width:560px){.hx-pin{height:auto!important}.hx-stage{position:relative;height:auto;min-height:100vh}}
+/* ===== Conversion Layer ===== */
+.conv-back{position:fixed;inset:0;z-index:200;background:rgba(18,22,28,.55);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .3s ease;display:grid;place-items:center;padding:20px}
+.conv-back.on{opacity:1;visibility:visible}
+.conv-panel{position:relative;background:var(--white);border-radius:20px;width:100%;max-width:580px;max-height:92vh;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.28);transform:translateY(16px) scale(.985);transition:transform .35s cubic-bezier(.2,.7,.2,1);padding:38px 40px}
+.conv-back.on .conv-panel{transform:none}
+.conv-close{position:absolute;top:15px;right:18px;border:none;background:none;font-size:24px;color:var(--muted);cursor:pointer;line-height:1;padding:4px 8px;border-radius:8px}
+.conv-close:hover{color:var(--ink);background:var(--paper)}
+.conv-eye{font-size:11.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--orange)}
+.conv-title{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:800;font-size:clamp(21px,2.6vw,27px);letter-spacing:-.01em;color:var(--ink);margin:9px 0 6px;line-height:1.15}
+.conv-sub{font-size:14.5px;color:var(--muted);font-weight:600;margin-bottom:22px;line-height:1.45}
+.conv-steps{font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--muted);margin-bottom:16px}
+.conv-form{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.conv-field{display:flex;flex-direction:column;gap:6px}
+.conv-field.full{grid-column:1/-1}
+.conv-field label{font-size:12.5px;font-weight:700;color:var(--ink-soft)}
+.conv-field label .req{color:var(--orange)}
+.conv-field input,.conv-field select,.conv-field textarea{font-family:inherit;font-size:15px;color:var(--ink);background:var(--paper-2);border:1.5px solid var(--line);border-radius:11px;padding:12px 14px;outline:none;transition:border-color .15s ease,background .15s ease;width:100%}
+.conv-field textarea{resize:vertical;min-height:82px}
+.conv-field input:focus,.conv-field select:focus,.conv-field textarea:focus{border-color:var(--orange);background:var(--white)}
+.conv-field.err input,.conv-field.err select,.conv-field.err textarea{border-color:#d64545;background:#fdf3f3}
+.conv-errmsg{font-size:12px;color:#d64545;font-weight:600;display:none}
+.conv-field.err .conv-errmsg{display:block}
+.conv-actions{grid-column:1/-1;display:flex;align-items:center;gap:14px;margin-top:6px}
+.conv-submit{background:var(--orange);color:#fff;font-weight:800;font-size:15px;border:none;border-radius:12px;padding:14px 26px;cursor:pointer;transition:transform .15s,box-shadow .15s;display:inline-flex;align-items:center;gap:10px}
+.conv-submit:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(232,81,30,.3)}
+.conv-submit:disabled{opacity:.65;cursor:default;transform:none;box-shadow:none}
+.conv-ghost{background:none;border:none;color:var(--muted);font-weight:700;font-size:14px;cursor:pointer;padding:6px 4px}
+.conv-ghost:hover{color:var(--ink)}
+.conv-spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:convspin .7s linear infinite}
+@keyframes convspin{to{transform:rotate(360deg)}}
+.conv-note{grid-column:1/-1;font-size:11.5px;color:var(--muted);font-weight:600;margin-top:2px}
+.conv-hub{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:760px;margin:26px auto 0}
+.conv-hub button{text-align:left;background:var(--white);border:1px solid var(--line);border-radius:14px;padding:18px 20px;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s;font-family:inherit}
+.conv-hub button:hover{border-color:var(--orange);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.06)}
+.conv-hub .ht{font-weight:800;font-size:16px;color:var(--ink)}
+.conv-hub .hs{font-size:13px;color:var(--muted);font-weight:600;margin-top:4px;line-height:1.4}
+.conv-success{text-align:center;padding:16px 6px 6px}
+.conv-success h3{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:800;font-size:24px;color:var(--ink);margin:18px 0 10px}
+.conv-success p{font-size:15px;color:var(--muted);font-weight:600;max-width:400px;margin:0 auto 22px;line-height:1.5}
+@media (max-width:560px){.conv-form,.conv-hub{grid-template-columns:1fr}.conv-panel{padding:30px 22px}}
 </style>
 </head>
 <body>
@@ -1202,7 +1242,7 @@ function pHome(t){var x=HX[lang]||HX.es, v=HXV3[lang]||HXV3.es, cl=t.clientes;
     '<section class="hx-ch" data-dur="9500"><div class="hx-inner"><h2 class="hx-title" style="font-size:clamp(22px,3.6vw,42px);margin-bottom:28px">'+esc(x.c6title)+'</h2><div class="hx-roles">'+roles+'</div></div></section>'+
     '<section class="hx-ch" data-dur="6500"><div class="hx-inner"><span class="hx-eye hx-reveal">'+esc(x.c7title)+'</span><div class="hx-bars" data-prog>'+bars+'</div><div class="hx-baw"><span>'+esc(x.c7before)+'</span><span class="on2">'+esc(x.c7after)+'</span></div><p class="hx-sub hx-step" data-at="0.55">'+esc(x.c7line)+'</p></div></section>'+
     '<section class="hx-ch" data-dur="4800"><div class="hx-inner"><span class="hx-eye hx-reveal">'+esc(x.c8title)+'</span><div class="hx-band hx-reveal">'+logos+'</div></div></section>'+
-    '<section class="hx-ch hx-dark" data-dur="9500"><div class="hx-inner"><div class="hx-mani hx-reveal">'+esc(x.c9manifesto)+' <span class="em">'+esc(x.c9manifesto2)+'</span></div><div class="hx-claim hx-reveal" style="transition-delay:.3s">'+esc(x.c9claim)+'</div><a class="hx-cta hx-reveal" data-nav="contacto" style="transition-delay:.5s">'+esc(x.c9cta)+'</a></div></section>'+
+    '<section class="hx-ch hx-dark" data-dur="9500"><div class="hx-inner"><div class="hx-mani hx-reveal">'+esc(x.c9manifesto)+' <span class="em">'+esc(x.c9manifesto2)+'</span></div><div class="hx-claim hx-reveal" style="transition-delay:.3s">'+esc(x.c9claim)+'</div><a class="hx-cta hx-reveal" data-conv="demo" style="transition-delay:.5s">'+esc(x.c9cta)+'</a></div></section>'+
   '</div>';
 }
 function pPlatform(t){var pf=t.platform,p=t.pro;
@@ -1267,10 +1307,11 @@ function pRoadmap(t){
 
 function pContacto(t){
   var c=t.contact;
+  var hub=['demo','expert','pilot','partner','newsletter'].map(function(k){return '<button data-conv="'+k+'"><div class="ht">'+esc(CL(CONVERSION_CONFIG[k].title))+'</div><div class="hs">'+esc(CL(CONVERSION_CONFIG[k].sub))+'</div></button>';}).join('');
   return '<section class="section cta"><div class="wrap">'+
-    '<div class="sec-head reveal" style="max-width:820px"><span class="eyebrow">'+esc(c.eyebrow)+'</span><h1 class="display">'+esc(c.title)+'<span class="hl">'+esc(c.hl)+'</span></h1><p style="font-size:18px;color:var(--ink-soft)">'+esc(c.sub)+'</p></div>'+
-    '<div class="cta-row"><a class="btn btn-primary" href="mailto:contacto@temporispro.com">'+esc(t.common.demo)+'</a><a class="btn btn-light" data-nav="ecosistema">'+esc(t.common.ver_eco)+'</a></div>'+
-    '<div class="contact-card reveal"><div class="name">Fernando Pérez S.</div><div class="row" style="margin-top:16px">'+
+    '<div class="sec-head center reveal" style="max-width:820px;margin-left:auto;margin-right:auto"><span class="eyebrow">'+esc(c.eyebrow)+'</span><h1 class="display">'+esc(c.title)+'<span class="hl">'+esc(c.hl)+'</span></h1><p style="font-size:18px;color:var(--ink-soft)">'+esc(c.sub)+'</p></div>'+
+    '<div class="conv-hub reveal">'+hub+'</div>'+
+    '<div class="contact-card reveal" style="margin-top:36px"><div class="name">Fernando Pérez S.</div><div class="row" style="margin-top:16px">'+
       '<a href="tel:+56998223080"><span class="ic">✆</span> +56 9 9822 3080</a>'+
       '<a href="mailto:contacto@temporispro.com"><span class="ic">✉</span> contacto@temporispro.com</a>'+
     '</div></div>'+
@@ -1280,7 +1321,7 @@ function pContacto(t){
 function ctaBlock(t,title,hl){
   return '<section class="section cta"><div class="wrap">'+
     '<div class="sec-head reveal" style="max-width:820px"><h2 class="display">'+esc(title)+'<span class="hl">'+esc(hl)+'</span></h2></div>'+
-    '<div class="cta-row"><a class="btn btn-primary" data-nav="contacto">'+esc(t.common.demo)+'</a><a class="btn btn-light" data-nav="ecosistema">'+esc(t.common.ver_eco)+'</a></div>'+
+    '<div class="cta-row"><a class="btn btn-primary" data-conv="demo">'+esc(t.common.demo)+'</a><a class="btn btn-light" data-nav="ecosistema">'+esc(t.common.ver_eco)+'</a></div>'+
   '</div></section>';
 }
 
@@ -1478,8 +1519,96 @@ function hxInit(){try{var root=document.querySelector(".hx");if(!root)return;
   hxScroll();
 }catch(e){var r=document.querySelector(".hx");if(r){r.classList.remove("is-live");}}}
 
+/* ============================ CONVERSION LAYER ============================ */
+/* Config-driven lead capture. Website -> ConversionLayer -> LeadService -> CRMAdapter (Mock) -> [Zoho, next sprint]. No external services, no persistence. */
+var GA4_ID=""; /* pega tu Measurement ID (G-XXXXXXX) para activar GA4; vacío = no-op seguro */
+function convLang(){return (typeof lang!=="undefined"&&lang==="en")?"en":"es";}
+function CL(o){if(!o)return "";return o[convLang()]||o.es||o.en||"";}
+/* ---- AnalyticsService (multi-sink) ---- */
+var AnalyticsService={track:function(ev,params){try{params=params||{};if(GA4_ID&&window.gtag){window.gtag("event",ev,params);}(window.__convEvents=window.__convEvents||[]).push({event:ev,params:params,ts:Date.now()});if(window.console&&console.debug)console.debug("[Analytics]",ev,params);}catch(e){}}};
+/* ---- FormValidation ---- */
+var FormValidation={required:function(v){return v!=null&&String(v).trim().length>0;},email:function(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||"").trim());}};
+/* ---- context + id ---- */
+function convUUID(){return "lead-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,10);}
+function convContext(){var q={};try{(location.search||"").slice(1).split("&").forEach(function(p){if(!p)return;var kv=p.split("=");q[decodeURIComponent(kv[0])]=decodeURIComponent((kv[1]||"").replace(/\+/g," "));});}catch(e){}var utm={};["utm_source","utm_medium","utm_campaign","utm_term","utm_content"].forEach(function(k){if(q[k])utm[k]=q[k];});return {page:(location.hash||"#/home"),referrer:(document.referrer||""),locale:(typeof lang!=="undefined"?lang:"es"),utm:utm,ts:new Date().toISOString()};}
+/* ---- CRMAdapter (interface: submit(lead)->Promise<{ok,id}>) ---- */
+var MockCRMAdapter={name:"mock",submit:function(lead){return new Promise(function(res){setTimeout(function(){if(window.console&&console.debug)console.debug("[MockCRMAdapter] lead",lead);res({ok:true,id:lead.leadId});},700);});}};
+/* Próximo sprint: HttpCRMAdapter(endpoint) que hace POST al Lead Ingestion API serverless (donde viven las credenciales de Zoho). Misma interfaz -> reemplazo directo. */
+var CRMAdapter=MockCRMAdapter;
+/* ---- LeadService (Lead canónico) ---- */
+var LeadService={capture:function(type,values){var lead={leadId:convUUID(),source:type,channel:"web",locale:(typeof lang!=="undefined"?lang:"es"),consent:true,context:convContext(),payload:values,createdAt:new Date().toISOString()};return CRMAdapter.submit(lead).then(function(r){return {lead:lead,result:r};});}};
+/* ---- field option sets ---- */
+var OPT_CHALLENGE=[{es:"Disponibilidad",en:"Availability"},{es:"Productividad",en:"Productivity"},{es:"Mantenimiento",en:"Maintenance"},{es:"Energía",en:"Energy"},{es:"Calidad",en:"Quality"},{es:"Planificación",en:"Planning"},{es:"Digitalización",en:"Digitalization"},{es:"Operational Intelligence",en:"Operational Intelligence"},{es:"Otro",en:"Other"}];
+var OPT_INDUSTRY=[{es:"Manufactura",en:"Manufacturing"},{es:"Minería",en:"Mining"},{es:"Alimentos y Bebidas",en:"Food & Beverage"},{es:"Química",en:"Chemicals"},{es:"Energía",en:"Energy"},{es:"Farmacéutica",en:"Pharma"},{es:"Logística",en:"Logistics"},{es:"Retail",en:"Retail"},{es:"Otro",en:"Other"}];
+var OPT_SIZE=[{es:"1 planta",en:"1 plant"},{es:"2–5 plantas",en:"2–5 plants"},{es:"6–15 plantas",en:"6–15 plants"},{es:"15+ plantas",en:"15+ plants"}];
+var OPT_HORIZON=[{es:"0–3 meses",en:"0–3 months"},{es:"3–6 meses",en:"3–6 months"},{es:"6–12 meses",en:"6–12 months"},{es:"12+ meses",en:"12+ months"}];
+function F(key,type,es,en,req,opts,full){return {key:key,type:type,label:{es:es,en:en},req:!!req,opts:opts||null,full:!!full};}
+/* ---- CONVERSION_CONFIG (single source of truth, no hardcoded strings in UI) ---- */
+var CONVERSION_CONFIG={
+ demo:{event:"Demo Requested",eye:{es:"Executive Demo",en:"Executive Demo"},title:{es:"Solicita una Executive Demo",en:"Request an Executive Demo"},sub:{es:"Operational Intelligence aplicada a tu operación. Respuesta en 24h.",en:"Operational Intelligence applied to your operation. Reply within 24h."},submit:{es:"Solicitar Executive Demo",en:"Request Executive Demo"},steps:[
+   [F("firstName","text","Nombre","First name",true),F("company","text","Empresa","Company",true),F("email","email","Correo corporativo","Corporate email",true,null,true)],
+   [F("lastName","text","Apellido","Last name"),F("role","text","Cargo","Role"),F("phone","tel","Teléfono (opcional)","Phone (optional)"),F("industry","select","Industria","Industry",false,OPT_INDUSTRY),F("country","text","País","Country"),F("plants","number","Nº aproximado de plantas","Approx. plants"),F("challenge","select","Principal desafío operacional","Main operational challenge",false,OPT_CHALLENGE,true),F("message","textarea","Mensaje","Message",false,null,true)]
+ ]},
+ expert:{event:"Expert Requested",eye:{es:"Conversación",en:"Conversation"},title:{es:"Habla con un experto en Operational Intelligence","en":"Talk to an Operational Intelligence Expert"},sub:{es:"Una conversación breve, sin compromiso.",en:"A short, no-commitment conversation."},submit:{es:"Enviar","en":"Send"},fields:[F("name","text","Nombre","Name",true),F("company","text","Empresa","Company",true),F("email","email","Correo","Email",true),F("message","textarea","Mensaje","Message",false,null,true)]},
+ pilot:{event:"Pilot Requested",eye:{es:"Piloto",en:"Pilot"},title:{es:"Explora un proyecto piloto","en":"Explore a Pilot Project"},sub:{es:"Un primer paso acotado y medible.",en:"A focused, measurable first step."},submit:{es:"Solicitar piloto","en":"Request pilot"},fields:[F("company","text","Empresa","Company",true),F("industry","select","Industria","Industry",false,OPT_INDUSTRY),F("country","text","País","Country"),F("size","select","Tamaño aproximado","Approx. size",false,OPT_SIZE),F("objective","select","Principal objetivo","Main objective",false,OPT_CHALLENGE),F("horizon","select","Horizonte esperado","Expected horizon",false,OPT_HORIZON),F("message","textarea","Mensaje","Message",false,null,true)]},
+ partner:{event:"Partner Requested",eye:{es:"Alianzas",en:"Partnerships"},title:{es:"Conviértete en Technology Partner","en":"Become a Technology Partner"},sub:{es:"Construyamos el ecosistema de Operational Intelligence.",en:"Let's build the Operational Intelligence ecosystem."},submit:{es:"Enviar","en":"Send"},fields:[F("company","text","Empresa","Company",true),F("technology","text","Tecnología","Technology",true),F("name","text","Nombre","Name",true),F("role","text","Cargo","Role"),F("email","email","Correo","Email",true),F("website","text","Sitio web","Website"),F("message","textarea","Mensaje","Message",false,null,true)]},
+ newsletter:{event:"Newsletter Requested",eye:{es:"Newsletter",en:"Newsletter"},title:{es:"Mantente conectado","en":"Stay Connected"},sub:{es:"Ideas sobre Operational Intelligence, sin ruido.",en:"Ideas on Operational Intelligence, no noise."},submit:{es:"Suscribirme","en":"Subscribe"},fields:[F("name","text","Nombre","Name",true),F("email","email","Correo","Email",true),F("industry","select","Industria","Industry",false,OPT_INDUSTRY)]}
+};
+/* ---- FormRenderer + ConversionLayer ---- */
+var ConversionLayer=(function(){
+  var root=null,curType=null,curStep=0,collected={};
+  var T={contactStart:"Contact Started",contactDone:"Contact Completed"};
+  function ensureRoot(){if(root)return;root=document.createElement("div");root.className="conv-back";root.setAttribute("role","dialog");root.setAttribute("aria-modal","true");root.innerHTML='<div class="conv-panel"><button class="conv-close" aria-label="Cerrar">×</button><div class="conv-body"></div></div>';document.body.appendChild(root);
+    root.addEventListener("click",function(e){if(e.target===root)close();var c=e.target.closest(".conv-close");if(c)close();});
+    document.addEventListener("keydown",function(e){if(e.key==="Escape"&&root&&root.classList.contains("on"))close();});
+  }
+  function fieldHTML(f){var lbl=CL(f.label)+(f.req?' <span class="req">*</span>':'');var inner;
+    if(f.type==="select"){inner='<select data-in><option value="">—</option>'+f.opts.map(function(o){return '<option>'+CL(o)+'</option>';}).join('')+'</select>';}
+    else if(f.type==="textarea"){inner='<textarea data-in rows="3"></textarea>';}
+    else{var it=(f.type==="email"?"email":f.type==="tel"?"tel":f.type==="number"?"number":"text");inner='<input data-in type="'+it+'">';}
+    return '<div class="conv-field'+(f.full?' full':'')+'" data-key="'+f.key+'" data-type="'+f.type+'" data-req="'+(f.req?1:0)+'"><label>'+lbl+'</label>'+inner+'<span class="conv-errmsg"></span></div>';}
+  function currentFields(cfg){return cfg.steps?cfg.steps[curStep]:cfg.fields;}
+  function render(){var cfg=CONVERSION_CONFIG[curType];var body=root.querySelector(".conv-body");var fields=currentFields(cfg);
+    var stepsInfo=cfg.steps?'<div class="conv-steps">'+(convLang()==="en"?"Step":"Paso")+' '+(curStep+1)+' / '+cfg.steps.length+'</div>':'';
+    var lastStep=!cfg.steps||curStep===cfg.steps.length-1;
+    var primaryLabel=lastStep?CL(cfg.submit):(convLang()==="en"?"Continue":"Continuar");
+    var backBtn=(cfg.steps&&curStep>0)?'<button type="button" class="conv-ghost" data-back>'+(convLang()==="en"?"Back":"Atrás")+'</button>':'';
+    body.innerHTML='<span class="conv-eye">'+CL(cfg.eye)+'</span><h3 class="conv-title">'+CL(cfg.title)+'</h3><p class="conv-sub">'+CL(cfg.sub)+'</p>'+stepsInfo+
+      '<form class="conv-form" novalidate>'+fields.map(fieldHTML).join('')+
+      '<div class="conv-actions">'+backBtn+'<button type="submit" class="conv-submit">'+primaryLabel+'</button></div>'+
+      '<div class="conv-note">'+(convLang()==="en"?"We never share your data. No spam.":"No compartimos tus datos. Sin spam.")+'</div></form>';
+    var form=body.querySelector("form");
+    form.querySelectorAll("[data-in]").forEach(function(inp){var fld=inp.closest(".conv-field");if(collected[fld.getAttribute("data-key")]!=null)inp.value=collected[fld.getAttribute("data-key")];inp.addEventListener("input",function(){fld.classList.remove("err");});});
+    var bk=body.querySelector("[data-back]");if(bk)bk.addEventListener("click",function(){saveStep(form);curStep--;render();});
+    form.addEventListener("submit",function(e){e.preventDefault();onSubmit(form,cfg,lastStep);});
+    var first=form.querySelector("[data-in]");if(first)try{first.focus();}catch(e){}
+  }
+  function saveStep(form){form.querySelectorAll(".conv-field").forEach(function(fld){var inp=fld.querySelector("[data-in]");collected[fld.getAttribute("data-key")]=inp.value;});}
+  function validate(form){var ok=true;form.querySelectorAll(".conv-field").forEach(function(fld){var inp=fld.querySelector("[data-in]");var req=fld.getAttribute("data-req")==="1";var type=fld.getAttribute("data-type");var v=inp.value;var msg="";
+    if(req&&!FormValidation.required(v)){msg=convLang()==="en"?"Required field":"Campo requerido";}
+    else if(type==="email"&&v&&!FormValidation.email(v)){msg=convLang()==="en"?"Invalid email":"Correo inválido";}
+    if(msg){ok=false;fld.classList.add("err");fld.querySelector(".conv-errmsg").textContent=msg;}else{fld.classList.remove("err");}});
+    return ok;}
+  function onSubmit(form,cfg,lastStep){if(!validate(form))return;saveStep(form);
+    if(!lastStep){curStep++;render();return;}
+    var btn=form.querySelector(".conv-submit");btn.disabled=true;var lbl=btn.innerHTML;btn.innerHTML='<span class="conv-spin"></span>'+(convLang()==="en"?"Sending…":"Enviando…");
+    AnalyticsService.track(cfg.event,{source:curType});
+    LeadService.capture(curType,Object.assign({},collected)).then(function(){AnalyticsService.track(T.contactDone,{source:curType});success(cfg);}).catch(function(){btn.disabled=false;btn.innerHTML=lbl;var f=form.querySelector(".conv-field");if(f){f.classList.add("err");f.querySelector(".conv-errmsg").textContent=convLang()==="en"?"Something went wrong. Try again.":"Ocurrió un problema. Intenta de nuevo.";}});}
+  function success(cfg){var body=root.querySelector(".conv-body");
+    body.innerHTML='<div class="conv-success"><svg width="72" height="72" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="34" fill="none" stroke="#e8531f" stroke-width="3" opacity="0.25"/><circle cx="36" cy="36" r="34" fill="#fdeee7"/><path d="M23 37l9 9 17-19" fill="none" stroke="#e8531f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+      '<h3>'+(convLang()==="en"?"Thank you.":"Gracias.")+'</h3><p>'+(convLang()==="en"?"Your request has been successfully received. One of our Operational Intelligence specialists will contact you shortly.":"Recibimos tu solicitud. Uno de nuestros especialistas en Operational Intelligence te contactará en breve.")+'</p>'+
+      '<button type="button" class="conv-submit" data-done>'+(convLang()==="en"?"Close":"Cerrar")+'</button></div>';
+    body.querySelector("[data-done]").addEventListener("click",close);}
+  function open(type){if(!CONVERSION_CONFIG[type])return;ensureRoot();curType=type;curStep=0;collected={};render();requestAnimationFrame(function(){root.classList.add("on");});document.body.style.overflow="hidden";AnalyticsService.track(T.contactStart,{source:type});}
+  function close(){if(!root)return;root.classList.remove("on");document.body.style.overflow="";}
+  return {open:open,close:close};
+})();
+var Conversion=ConversionLayer;
+
 /* events */
 document.addEventListener("click",function(e){
+  var cv=e.target.closest("[data-conv]");
+  if(cv){e.preventDefault();Conversion.open(cv.getAttribute("data-conv"));return;}
   var n=e.target.closest("[data-nav]");
   if(n){e.preventDefault();location.hash="#/"+n.getAttribute("data-nav");document.getElementById("navlinks").classList.remove("open");}
 });
