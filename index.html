@@ -511,6 +511,7 @@ body.hx-playing footer{display:none}
 .conv-spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:convspin .7s linear infinite}
 @keyframes convspin{to{transform:rotate(360deg)}}
 .conv-note{grid-column:1/-1;font-size:11.5px;color:var(--muted);font-weight:600;margin-top:2px}
+.conv-hp{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
 .conv-hub{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:760px;margin:26px auto 0}
 .conv-hub button{text-align:left;background:var(--white);border:1px solid var(--line);border-radius:14px;padding:18px 20px;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s;font-family:inherit}
 .conv-hub button:hover{border-color:var(--orange);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.06)}
@@ -1533,10 +1534,13 @@ function convUUID(){return "lead-"+Date.now().toString(36)+"-"+Math.random().toS
 function convContext(){var q={};try{(location.search||"").slice(1).split("&").forEach(function(p){if(!p)return;var kv=p.split("=");q[decodeURIComponent(kv[0])]=decodeURIComponent((kv[1]||"").replace(/\+/g," "));});}catch(e){}var utm={};["utm_source","utm_medium","utm_campaign","utm_term","utm_content"].forEach(function(k){if(q[k])utm[k]=q[k];});return {page:(location.hash||"#/home"),referrer:(document.referrer||""),locale:(typeof lang!=="undefined"?lang:"es"),utm:utm,ts:new Date().toISOString()};}
 /* ---- CRMAdapter (interface: submit(lead)->Promise<{ok,id}>) ---- */
 var MockCRMAdapter={name:"mock",submit:function(lead){return new Promise(function(res){setTimeout(function(){if(window.console&&console.debug)console.debug("[MockCRMAdapter] lead",lead);res({ok:true,id:lead.leadId});},700);});}};
-/* Próximo sprint: HttpCRMAdapter(endpoint) que hace POST al Lead Ingestion API serverless (donde viven las credenciales de Zoho). Misma interfaz -> reemplazo directo. */
-var CRMAdapter=MockCRMAdapter;
+/* HttpCRMAdapter: POST del Lead al Lead Ingestion API (Cloudflare Worker). Misma interfaz que el Mock. */
+function HttpCRMAdapter(url){return {name:"http",submit:function(lead){return fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(lead)}).then(function(r){return r.json().catch(function(){return {ok:r.ok};});}).then(function(j){if(j&&j.ok===false)throw new Error(j.error||"rejected");return {ok:true,id:(j&&j.id)||lead.leadId};});}};}
+/* Endpoint del Worker. Vacío = usa Mock (nada se guarda). Pega aquí la URL cuando deployes el Worker. */
+var CONV_ENDPOINT="";
+var CRMAdapter=CONV_ENDPOINT?HttpCRMAdapter(CONV_ENDPOINT):MockCRMAdapter;
 /* ---- LeadService (Lead canónico) ---- */
-var LeadService={capture:function(type,values){var lead={leadId:convUUID(),source:type,channel:"web",locale:(typeof lang!=="undefined"?lang:"es"),consent:true,context:convContext(),payload:values,createdAt:new Date().toISOString()};return CRMAdapter.submit(lead).then(function(r){return {lead:lead,result:r};});}};
+var LeadService={capture:function(type,values,meta){meta=meta||{};var ctx=convContext();ctx.formMs=meta.formMs||0;var lead={leadId:convUUID(),source:type,channel:"web",locale:(typeof lang!=="undefined"?lang:"es"),consent:true,hp:meta.hp||"",context:ctx,payload:values,createdAt:new Date().toISOString()};return CRMAdapter.submit(lead).then(function(r){return {lead:lead,result:r};});}};
 /* ---- field option sets ---- */
 var OPT_CHALLENGE=[{es:"Disponibilidad",en:"Availability"},{es:"Productividad",en:"Productivity"},{es:"Mantenimiento",en:"Maintenance"},{es:"Energía",en:"Energy"},{es:"Calidad",en:"Quality"},{es:"Planificación",en:"Planning"},{es:"Digitalización",en:"Digitalization"},{es:"Operational Intelligence",en:"Operational Intelligence"},{es:"Otro",en:"Other"}];
 var OPT_INDUSTRY=[{es:"Manufactura",en:"Manufacturing"},{es:"Minería",en:"Mining"},{es:"Alimentos y Bebidas",en:"Food & Beverage"},{es:"Química",en:"Chemicals"},{es:"Energía",en:"Energy"},{es:"Farmacéutica",en:"Pharma"},{es:"Logística",en:"Logistics"},{es:"Retail",en:"Retail"},{es:"Otro",en:"Other"}];
@@ -1556,7 +1560,7 @@ var CONVERSION_CONFIG={
 };
 /* ---- FormRenderer + ConversionLayer ---- */
 var ConversionLayer=(function(){
-  var root=null,curType=null,curStep=0,collected={};
+  var root=null,curType=null,curStep=0,collected={},openedAt=0;
   var T={contactStart:"Contact Started",contactDone:"Contact Completed"};
   function ensureRoot(){if(root)return;root=document.createElement("div");root.className="conv-back";root.setAttribute("role","dialog");root.setAttribute("aria-modal","true");root.innerHTML='<div class="conv-panel"><button class="conv-close" aria-label="Cerrar">×</button><div class="conv-body"></div></div>';document.body.appendChild(root);
     root.addEventListener("click",function(e){if(e.target===root)close();var c=e.target.closest(".conv-close");if(c)close();});
@@ -1575,6 +1579,7 @@ var ConversionLayer=(function(){
     var backBtn=(cfg.steps&&curStep>0)?'<button type="button" class="conv-ghost" data-back>'+(convLang()==="en"?"Back":"Atrás")+'</button>':'';
     body.innerHTML='<span class="conv-eye">'+CL(cfg.eye)+'</span><h3 class="conv-title">'+CL(cfg.title)+'</h3><p class="conv-sub">'+CL(cfg.sub)+'</p>'+stepsInfo+
       '<form class="conv-form" novalidate>'+fields.map(fieldHTML).join('')+
+      '<input class="conv-hp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" data-hp>'+
       '<div class="conv-actions">'+backBtn+'<button type="submit" class="conv-submit">'+primaryLabel+'</button></div>'+
       '<div class="conv-note">'+(convLang()==="en"?"We never share your data. No spam.":"No compartimos tus datos. Sin spam.")+'</div></form>';
     var form=body.querySelector("form");
@@ -1593,13 +1598,14 @@ var ConversionLayer=(function(){
     if(!lastStep){curStep++;render();return;}
     var btn=form.querySelector(".conv-submit");btn.disabled=true;var lbl=btn.innerHTML;btn.innerHTML='<span class="conv-spin"></span>'+(convLang()==="en"?"Sending…":"Enviando…");
     AnalyticsService.track(cfg.event,{source:curType});
-    LeadService.capture(curType,Object.assign({},collected)).then(function(){AnalyticsService.track(T.contactDone,{source:curType});success(cfg);}).catch(function(){btn.disabled=false;btn.innerHTML=lbl;var f=form.querySelector(".conv-field");if(f){f.classList.add("err");f.querySelector(".conv-errmsg").textContent=convLang()==="en"?"Something went wrong. Try again.":"Ocurrió un problema. Intenta de nuevo.";}});}
+    var hp=(form.querySelector("[data-hp]")||{}).value||"";var formMs=openedAt?(Date.now()-openedAt):0;
+    LeadService.capture(curType,Object.assign({},collected),{hp:hp,formMs:formMs}).then(function(){AnalyticsService.track(T.contactDone,{source:curType});success(cfg);}).catch(function(){btn.disabled=false;btn.innerHTML=lbl;var f=form.querySelector(".conv-field");if(f){f.classList.add("err");f.querySelector(".conv-errmsg").textContent=convLang()==="en"?"Something went wrong. Try again.":"Ocurrió un problema. Intenta de nuevo.";}});}
   function success(cfg){var body=root.querySelector(".conv-body");
     body.innerHTML='<div class="conv-success"><svg width="72" height="72" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="34" fill="none" stroke="#e8531f" stroke-width="3" opacity="0.25"/><circle cx="36" cy="36" r="34" fill="#fdeee7"/><path d="M23 37l9 9 17-19" fill="none" stroke="#e8531f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
       '<h3>'+(convLang()==="en"?"Thank you.":"Gracias.")+'</h3><p>'+(convLang()==="en"?"Your request has been successfully received. One of our Operational Intelligence specialists will contact you shortly.":"Recibimos tu solicitud. Uno de nuestros especialistas en Operational Intelligence te contactará en breve.")+'</p>'+
       '<button type="button" class="conv-submit" data-done>'+(convLang()==="en"?"Close":"Cerrar")+'</button></div>';
     body.querySelector("[data-done]").addEventListener("click",close);}
-  function open(type){if(!CONVERSION_CONFIG[type])return;ensureRoot();curType=type;curStep=0;collected={};render();requestAnimationFrame(function(){root.classList.add("on");});document.body.style.overflow="hidden";AnalyticsService.track(T.contactStart,{source:type});}
+  function open(type){if(!CONVERSION_CONFIG[type])return;ensureRoot();curType=type;curStep=0;collected={};openedAt=Date.now();render();requestAnimationFrame(function(){root.classList.add("on");});document.body.style.overflow="hidden";AnalyticsService.track(T.contactStart,{source:type});}
   function close(){if(!root)return;root.classList.remove("on");document.body.style.overflow="";}
   return {open:open,close:close};
 })();
