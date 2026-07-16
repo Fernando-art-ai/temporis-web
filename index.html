@@ -1537,7 +1537,7 @@ var MockCRMAdapter={name:"mock",submit:function(lead){return new Promise(functio
 /* HttpCRMAdapter: POST del Lead al Lead Ingestion API (Cloudflare Worker). Misma interfaz que el Mock. */
 function HttpCRMAdapter(url){return {name:"http",submit:function(lead){return fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(lead)}).then(function(r){return r.json().catch(function(){return {ok:r.ok};});}).then(function(j){if(j&&j.ok===false)throw new Error(j.error||"rejected");return {ok:true,id:(j&&j.id)||lead.leadId};});}};}
 /* Endpoint del Worker. Vacío = usa Mock (nada se guarda). Pega aquí la URL cuando deployes el Worker. */
-var CONV_ENDPOINT="";
+var CONV_ENDPOINT="https://temporis-leads.fernando-perez.workers.dev";
 var CRMAdapter=CONV_ENDPOINT?HttpCRMAdapter(CONV_ENDPOINT):MockCRMAdapter;
 /* ---- LeadService (Lead canónico) ---- */
 var LeadService={capture:function(type,values,meta){meta=meta||{};var ctx=convContext();ctx.formMs=meta.formMs||0;var lead={leadId:convUUID(),source:type,channel:"web",locale:(typeof lang!=="undefined"?lang:"es"),consent:true,hp:meta.hp||"",context:ctx,payload:values,createdAt:new Date().toISOString()};return CRMAdapter.submit(lead).then(function(r){return {lead:lead,result:r};});}};
